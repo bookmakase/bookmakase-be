@@ -1,6 +1,8 @@
 package com.bookmakase.controller;
 
 
+import com.bookmakase.dto.user.JwtResponse;
+import com.bookmakase.dto.user.LoginRequest;
 import com.bookmakase.dto.user.SignUpRequest;
 import com.bookmakase.dto.user.UserResponse;
 import com.bookmakase.service.AuthService;
@@ -24,6 +26,12 @@ public class AuthController {
         UserResponse userResponse = authService.register(signUpRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+        JwtResponse jwtResponse = authService.login(loginRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(jwtResponse);
     }
 
 
