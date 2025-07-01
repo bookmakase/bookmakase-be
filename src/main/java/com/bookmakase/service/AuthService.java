@@ -4,6 +4,7 @@ package com.bookmakase.service;
 import com.bookmakase.domain.User;
 import com.bookmakase.dto.user.SignUpRequest;
 import com.bookmakase.dto.user.UserResponse;
+import com.bookmakase.exception.DuplicateEmailException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,7 +20,7 @@ public class AuthService {
 
     public UserResponse register(@Valid SignUpRequest signUpRequest) {
        if(userService.existsByEmail(signUpRequest.getEmail())) {
-           throw new RuntimeException("Email already exists");
+           throw new DuplicateEmailException();
        }
 
        // 비밀번호 암호화

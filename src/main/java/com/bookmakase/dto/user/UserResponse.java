@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 public class UserResponse {
 
-    private Long id;
+    private Long userId;
     private String username;
     private String email;
 
@@ -28,7 +28,7 @@ public class UserResponse {
 
     public static UserResponse from(User user) {
         return UserResponse.builder()
-                .id(user.getId())
+                .userId(user.getUserId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .createdAt(user.getCreatedAt())
