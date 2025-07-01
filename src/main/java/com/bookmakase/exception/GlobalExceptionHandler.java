@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
         body.put("message", ex.getMessage());
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.CONFLICT.value());
-        body.put("error", HttpStatus.CONFLICT.name());
+        body.put("error", "이메일 중복 오류");
 
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
