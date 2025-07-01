@@ -42,7 +42,7 @@ public class SecurityConfig {
 				// 현재는 인증 로직이 없는 상태이므로 테스트/개발 환경용 설정입니다.
 
 				// 실제 운영시 권장 설정 예
-				// .authorizeHttpRequests(auth -> auth
+				// .authorizeHttpRequests(authz -> authz
 				//     .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 				//     .requestMatchers("/api/v1/user/**").hasRole("USER")
 				//     .anyRequest().authenticated()
