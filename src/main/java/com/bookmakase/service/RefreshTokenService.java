@@ -6,6 +6,8 @@ import com.bookmakase.domain.User;
 import com.bookmakase.repository.RefreshTokenRepository;
 import com.bookmakase.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class RefreshTokenService {
 
     @Value("${jwt.refresh-expiration}")
@@ -33,17 +36,24 @@ public class RefreshTokenService {
     }
 
     @Transactional
-    public RefreshToken createRefreshToken(String username) {
+    public RefreshToken createRefreshToken(String email) {
+
+        log.info("Creating new refresh token for user {}", email);
 
         // TODO: 사용자 이름(username)을 기반으로 새로운 Refresh Token을 생성하고 저장하는 로직을 구현합니다.
         // 1. UserRepository를 사용하여 사용자 정보를 조회합니다. 사용자가 없으면 예외를 발생시킵니다.
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(()-> new UsernameNotFoundException(username));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()-> new UsernameNotFoundException(email));
+
+        log.info("Creating new refresh token for user {}", user);
 
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setUser(user);
+        log.info("Creating new refresh token for user1 {}", user.getEmail());
         refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs * 1000));
+        log.info("Creating new refresh token for user2 {}", user.getEmail());
         refreshToken.setToken(UUID.randomUUID().toString());
+        log.info("Creating new refresh token for user3 {}", user.getEmail());
 
         return refreshTokenRepository.save(refreshToken);
     }

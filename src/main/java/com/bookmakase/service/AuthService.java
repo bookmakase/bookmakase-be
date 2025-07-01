@@ -12,6 +12,8 @@ import com.bookmakase.exception.DuplicateEmailException;
 import com.bookmakase.exception.DuplicateUsernameException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final UserService userService;
@@ -61,7 +64,6 @@ public class AuthService {
     @Transactional
     public JwtResponse login(@Valid LoginRequest loginRequest) {
 
-        // (1) AuthenticationManager를 사용하여 사용자 인증을 수행합니다.
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getEmail(),
@@ -69,16 +71,16 @@ public class AuthService {
                 )
         );
 
-        // (2) 인증에 성공하면, SecurityContextHolder에 인증 정보를 저장합니다.
+        // 2. 인증에 성공하면, SecurityContextHolder에 인증 정보를 저장합니다.
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // (3) 인증된 사용자 정보를 기반으로 Access Token(JwtUtil.generateToken)과 Refresh Token(RefreshTokenService.createRefreshToken)을 생성합니다.
+        // 3. 인증된 사용자 정보를 기반으로 Access Token(JwtUtil.generateToken)과 Refresh Token(RefreshTokenService.createRefreshToken)을 생성합니다.
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String accessToken = jwtUtil.generateToken(userDetails);
+        log.info("Access token: {}", accessToken);
 
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
-
-        // (4) 생성된 토큰들을 JwtResponse DTO에 담아 반환합니다.
+        log.info("Refresh token1111: {}", refreshToken);
+        // 4. 생성된 토큰들을 JwtResponse DTO에 담아 반환합니다.
         return new JwtResponse(accessToken, refreshToken.getToken());
     }
 
@@ -91,8 +93,9 @@ public class AuthService {
 
         Object principal = authentication.getPrincipal();
         if(principal instanceof UserDetails) {
-            String username = ((UserDetails) principal).getUsername();
-            return userService.getUserByUsername(username).orElse(null);
+            String email = ((UserDetails) principal).getUsername();
+            log.info("User: {}", email);
+            return userService.findByEmail(email).orElse(null);
         }
 
         return null;

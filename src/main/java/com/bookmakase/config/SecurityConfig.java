@@ -37,6 +37,9 @@ public class SecurityConfig {
 							"/webjars/**",
 							"/swagger-ui.html"
 					).permitAll()
+
+					.requestMatchers("/error").permitAll()
+
 					.anyRequest().authenticated())
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
