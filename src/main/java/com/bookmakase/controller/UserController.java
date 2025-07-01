@@ -1,0 +1,17 @@
+package com.bookmakase.controller;
+
+
+import com.bookmakase.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/users")
+public class UserController {
+
+    private UserService userService;
+
+
+}
