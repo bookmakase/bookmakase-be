@@ -9,8 +9,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.bookmakase.domain.Book;
-import com.bookmakase.dto.admin.BookAdminListResponse;
-import com.bookmakase.dto.admin.BookAdminResponseDto;
+import com.bookmakase.dto.admin.BookAdminPageResponse;
+import com.bookmakase.dto.admin.BookAdminResponse;
 import com.bookmakase.repository.BookAdminRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -21,28 +21,17 @@ public class BookAdminService {
 
 	private final BookAdminRepository bookAdminRepository;
 
-	public BookAdminListResponse getBooks(int page, int size) {
+	public BookAdminPageResponse getBooks(int page, int size) {
 		Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.ASC, "bookId"));
+		// Spring의 페이지 인덱스는 0부터 시작하므로, 프론트에서 1을 넘기면 0으로 맞춰줌
+
 		Page<Book> result = bookAdminRepository.findAll(pageable);
 
-		List<BookAdminResponseDto> content = result.stream().map(book -> BookAdminResponseDto.builder()
-			.bookId(book.getBookId())
-			.title(book.getTitle())
-			.authors(book.getAuthors())
-			.isbn(book.getIsbn())
-			.createdAt(book.getCreatedAt())
-			.status(book.getStatus())
-			.count(book.getCount())
-			.build()
-		).toList();
+		List<BookAdminResponse> content = result.getContent().stream()
+			.map(BookAdminResponse::from)
+			.toList();
+		// Book 도메인을 응답용 DTO BookAdminResponse로 변환
 
-		return BookAdminListResponse.builder()
-			.content(content)
-			.pageInfo(BookAdminListResponse.PageInfo.builder()
-				.currentPage(page)
-				.totalPages(result.getTotalPages())
-				.totalElements(result.getTotalElements())
-				.build())
-			.build();
+		return BookAdminPageResponse.from(content, result);
 	}
 }
