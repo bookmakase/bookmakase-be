@@ -9,8 +9,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.bookmakase.domain.Book;
-import com.bookmakase.dto.admin.BookAdminDto;
 import com.bookmakase.dto.admin.BookAdminListResponse;
+import com.bookmakase.dto.admin.BookAdminResponseDto;
 import com.bookmakase.repository.BookAdminRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class BookAdminService {
 		Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.ASC, "bookId"));
 		Page<Book> result = bookAdminRepository.findAll(pageable);
 
-		List<BookAdminDto> content = result.stream().map(book -> BookAdminDto.builder()
+		List<BookAdminResponseDto> content = result.stream().map(book -> BookAdminResponseDto.builder()
 			.bookId(book.getBookId())
 			.title(book.getTitle())
 			.authors(book.getAuthors())

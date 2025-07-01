@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -31,7 +33,7 @@ public class SecurityConfig {
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			// 세션 : 세션을 생성하거나 사용하지 않음 (stateless), JWT 기반 인증 구조
 
-			.authorizeHttpRequests(auth -> auth
+			.authorizeHttpRequests(authz -> authz
 					.requestMatchers("/api/v1/admin/**").permitAll()
 					.anyRequest().permitAll()
 				// 인증 : 전체 공개 (특정 경로만 보호하려면 수정 필요)
@@ -48,6 +50,11 @@ public class SecurityConfig {
 			);
 
 		return http.build();
+	}
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
 	}
 
 	@Bean
