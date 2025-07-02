@@ -14,6 +14,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -69,4 +71,10 @@ public class User {
 
 
     public enum Role { USER, ADMIN }
+
+    @OneToMany(mappedBy = "review")
+    private List<Review> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "comment")
+    private List<Comment> comments = new ArrayList<>();
 }
