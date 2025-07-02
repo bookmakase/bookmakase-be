@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReviewController {
 	@GetMapping("/reviews")
 	public String reviews() {
-		return "This is reviews";
+		return "This is reviews update";
 	}
 }
