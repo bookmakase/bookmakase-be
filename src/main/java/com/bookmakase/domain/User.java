@@ -72,9 +72,9 @@ public class User {
 
     public enum Role { USER, ADMIN }
 
-    @OneToMany(mappedBy = "review")
+    @OneToMany(mappedBy = "user")
     private List<Review> reviews = new ArrayList<>();
 
-    @OneToMany(mappedBy = "comment")
+    @OneToMany(mappedBy = "user")
     private List<Comment> comments = new ArrayList<>();
 }

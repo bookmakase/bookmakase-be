@@ -68,6 +68,6 @@ public class Book {
 	@Column(columnDefinition = "TEXT[]")
 	private List<String> translators;
 
-	@OneToMany(mappedBy = "review")
+	@OneToMany(mappedBy = "book")
 	private List<Review> reviews = new ArrayList<>();
 }
