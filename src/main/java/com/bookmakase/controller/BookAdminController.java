@@ -1,5 +1,6 @@
 package com.bookmakase.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,7 +36,7 @@ public class BookAdminController {
 	public ResponseEntity<BookAdminResponse> createBook(@RequestBody BookAdminCreateRequest request) {
 		BookAdminResponse response = bookAdminService.createBook(request);
 
-		return ResponseEntity.ok(response);
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
 }
