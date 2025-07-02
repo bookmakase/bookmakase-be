@@ -1,26 +1,72 @@
 package com.bookmakase.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+	// private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
-				.csrf(csrf -> csrf.disable()) // CSRF 비활성화
-				.authorizeHttpRequests((authz) -> authz
-						.anyRequest().permitAll()
-				);
+			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+			.csrf(csrf -> csrf.disable()) // CSRF 비활성화
+			.sessionManagement(session -> session
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.authorizeHttpRequests((auth) -> auth
+				.requestMatchers(
+					"/api/v1/auth/**",
+					"/swagger-ui/**",
+					"/v3/api-docs/**",
+					"/swagger-resources/**",
+					"/webjars/**",
+					"/swagger-ui.html",
+					"/api/v1/admin/**"
+				).permitAll()
+
+				.requestMatchers("/error").permitAll()
+
+				.anyRequest().authenticated());
+
+		http.headers(
+			headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
 
 		return http.build();
 	}
 
 	@Bean
-	public PasswordEncoder passwordEncoder() {return new BCryptPasswordEncoder();}
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowedOrigins(List.of("http://localhost:3000")); // ✅ 프론트 도메인 허용
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+		config.setAllowedHeaders(List.of("*"));
+		config.setAllowCredentials(true); // ✅ Authorization 헤더 포함 허용
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", config);
+		return source;
+	}
 }
