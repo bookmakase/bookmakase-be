@@ -69,7 +69,7 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowedOrigins(List.of("http://localhost:3001")); // ✅ 프론트 도메인 허용
+		config.setAllowedOrigins(List.of("http://localhost:3000")); // ✅ 프론트 도메인 허용
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
 		config.setAllowedHeaders(List.of("*"));
 		config.setAllowCredentials(true); // ✅ Authorization 헤더 포함 허용

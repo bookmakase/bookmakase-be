@@ -22,6 +22,4 @@ public class UserController {
     public ResponseEntity<UserResponse> getCurrentUser() {
         return ResponseEntity.ok(UserResponse.from(authService.getCurrentUser()));
     }
-
-
 }
