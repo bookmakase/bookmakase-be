@@ -102,18 +102,24 @@ public class AuthService {
     }
 
     public String refreshAccessToken(String refreshToken) {
-        String newAccessToken = refreshTokenService.findByToken(refreshToken)
+        String newAccessToken = refreshTokenService.findByRefreshToken(refreshToken)
                 .map(token-> refreshTokenService.verifyExpiration(token))
                 .map(token->token.getUser())
                 .map(user-> jwtUtil.generateToken(
                         org.springframework.security.core.userdetails.User
-                                .withUsername(user.getUsername())
+                                .withUsername(user.getEmail())
                                 .password(user.getPassword())
                                 .authorities("ROLE_" + user.getRole().name())
                                 .build()))
                 .orElseThrow(()-> new RuntimeException("리프레쉬 토큰이 없습니다."));
 
+                log.info("Refresh token: {}", newAccessToken);
                 return newAccessToken;
     }
 
+    public void logout() {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = userDetails.getUsername();
+        refreshTokenService.deleteByUsername(email);
+    }
 }

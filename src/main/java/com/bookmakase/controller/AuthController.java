@@ -4,6 +4,8 @@ package com.bookmakase.controller;
 import com.bookmakase.dto.user.JwtResponse;
 import com.bookmakase.dto.user.LoginRequest;
 import com.bookmakase.dto.user.SignUpRequest;
+import com.bookmakase.dto.user.TokenRefreshRequest;
+import com.bookmakase.dto.user.TokenRefreshResponse;
 import com.bookmakase.dto.user.UserResponse;
 import com.bookmakase.service.AuthService;
 import jakarta.validation.Valid;
@@ -32,6 +34,18 @@ public class AuthController {
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         JwtResponse jwtResponse = authService.login(loginRequest);
         return ResponseEntity.status(HttpStatus.OK).body(jwtResponse);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@Valid @RequestBody TokenRefreshRequest request) {
+        authService.logout();
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/refreshtoken")
+    public ResponseEntity<TokenRefreshResponse> refreshToken(@Valid @RequestBody TokenRefreshRequest tokenRefreshRequest) {
+        String newAccessToken = authService.refreshAccessToken(tokenRefreshRequest.getRefreshToken());
+        return ResponseEntity.status(HttpStatus.OK).body(new TokenRefreshResponse(newAccessToken, tokenRefreshRequest.getRefreshToken()));
     }
 
 

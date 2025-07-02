@@ -3,6 +3,9 @@ package com.bookmakase.service;
 
 
 import com.bookmakase.domain.User;
+import com.bookmakase.dto.user.AddressUpdateResponse;
+import com.bookmakase.dto.user.OneUserResponse;
+import com.bookmakase.dto.user.PointUpdateResponse;
 import com.bookmakase.dto.user.SignUpRequest;
 import com.bookmakase.dto.user.UserResponse;
 import com.bookmakase.repository.UserRepository;
@@ -10,6 +13,7 @@ import com.bookmakase.repository.UserRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 
@@ -17,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -74,5 +79,36 @@ public class UserService implements UserDetailsService {
 
     public Optional<User> findByEmail(String username) {
         return userRepository.findByEmail(username);
+    }
+
+	public OneUserResponse getUserById(Long userId) {
+        return userRepository.findById(userId)
+            .map(user-> OneUserResponse.from(user))
+            .orElseThrow(()-> new RuntimeException("사용자를 찾을 수 없습니다." + userId));
+	}
+
+    @Transactional
+    public PointUpdateResponse updatePoint(Long userId, Long point) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(()-> new RuntimeException("사용자를 찾을 수 없습니다." + userId));
+
+       if (point < 0 && user.getPoint() + point < 0) {
+           throw new RuntimeException("현재 포인트가 부족합니다.");
+       }
+
+       user.setPoint(user.getPoint() + point);
+       userRepository.save(user);
+
+       return PointUpdateResponse.from(user);
+    }
+
+    public AddressUpdateResponse updateAddress(Long userId, String address) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(()-> new RuntimeException("사용자를 찾을 수 없습니다." + userId));
+
+        user.setAddress(address);
+        userRepository.save(user);
+
+        return AddressUpdateResponse.from(user);
     }
 }

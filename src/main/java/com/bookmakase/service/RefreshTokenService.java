@@ -31,19 +31,23 @@ public class RefreshTokenService {
         this.userRepository = userRepository;
     }
 
-    public Optional<RefreshToken> findByToken(String refreshToken) {
+    public Optional<RefreshToken> findByRefreshToken(String refreshToken) {
         return refreshTokenRepository.findByRefreshToken(refreshToken);
     }
 
     @Transactional
     public RefreshToken createRefreshToken(String email) {
 
-        log.info("Creating new refresh token for user {}", email);
 
         // TODO: 사용자 이름(username)을 기반으로 새로운 Refresh Token을 생성하고 저장하는 로직을 구현합니다.
         // 1. UserRepository를 사용하여 사용자 정보를 조회합니다. 사용자가 없으면 예외를 발생시킵니다.
         User user = userRepository.findByEmail(email)
                 .orElseThrow(()-> new UsernameNotFoundException(email));
+
+        // ⬇️ 1) 같은 user 행이 있으면 먼저 삭제
+        refreshTokenRepository.deleteByUser(user);
+        refreshTokenRepository.flush();         // ⭐ 삭제 SQL 즉시 실행
+
 
         log.info("Creating new refresh token for user {}", user);
 

@@ -12,6 +12,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @NoArgsConstructor
+@Table(name = "refresh_tokens")
 public class RefreshToken {
 
     @Id
