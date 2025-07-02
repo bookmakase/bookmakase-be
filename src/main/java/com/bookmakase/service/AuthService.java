@@ -81,7 +81,7 @@ public class AuthService {
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
         log.info("Refresh token1111: {}", refreshToken);
         // 4. 생성된 토큰들을 JwtResponse DTO에 담아 반환합니다.
-        return new JwtResponse(accessToken, refreshToken.getToken());
+        return new JwtResponse(accessToken, refreshToken.getRefreshToken());
     }
 
     // 내 정보 조회하기

@@ -31,8 +31,8 @@ public class RefreshTokenService {
         this.userRepository = userRepository;
     }
 
-    public Optional<RefreshToken> findByToken(String token) {
-        return refreshTokenRepository.findByToken(token);
+    public Optional<RefreshToken> findByToken(String refreshToken) {
+        return refreshTokenRepository.findByRefreshToken(refreshToken);
     }
 
     @Transactional
@@ -52,7 +52,7 @@ public class RefreshTokenService {
         log.info("Creating new refresh token for user1 {}", user.getEmail());
         refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs * 1000));
         log.info("Creating new refresh token for user2 {}", user.getEmail());
-        refreshToken.setToken(UUID.randomUUID().toString());
+        refreshToken.setRefreshToken(UUID.randomUUID().toString());
         log.info("Creating new refresh token for user3 {}", user.getEmail());
 
         return refreshTokenRepository.save(refreshToken);

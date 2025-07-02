@@ -32,26 +32,26 @@ public class SecurityConfig {
 		http
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.csrf(csrf -> csrf.disable()) // CSRF 비활성화
-				.sessionManagement(session -> session
-						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.sessionManagement(session -> session
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests((auth) -> auth
-					.requestMatchers(
-							"/api/v1/auth/**",
-							"/swagger-ui/**",
-							"/v3/api-docs/**",
-							"/swagger-resources/**",
-							"/webjars/**",
-							"/swagger-ui.html",
-						"/api/v1/admin/**"
-					).permitAll()
+				.requestMatchers(
+					"/api/v1/auth/**",
+					"/swagger-ui/**",
+					"/v3/api-docs/**",
+					"/swagger-resources/**",
+					"/webjars/**",
+					"/swagger-ui.html",
+					"/api/v1/admin/**"
+				).permitAll()
 
-					.requestMatchers("/error").permitAll()
+				.requestMatchers("/error").permitAll()
 
-					.anyRequest().authenticated())
-				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+				.anyRequest().authenticated())
+			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		http.headers(
-				headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
+			headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
 
 		return http.build();
 	}
@@ -61,7 +61,7 @@ public class SecurityConfig {
 
 	@Bean
 	public AuthenticationManager authenticationManager(
-			AuthenticationConfiguration authenticationConfiguration
+		AuthenticationConfiguration authenticationConfiguration
 	)  throws Exception {
 		return authenticationConfiguration.getAuthenticationManager();
 	}
