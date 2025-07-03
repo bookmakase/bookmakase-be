@@ -54,7 +54,7 @@ public class User {
     @Column(nullable = true)
     private String imageUrl;
 
-    @Column(nullable = false, columnDefinition = "bigint default 0")
+    @Column(nullable = false)
     private Long point = 0L;
 
     @Enumerated(EnumType.STRING)
