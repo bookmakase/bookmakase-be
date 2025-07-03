@@ -28,6 +28,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long userId;
 
     @Email
@@ -43,17 +44,17 @@ public class User {
     private String username;
 
     @CreatedDate
-    @Column(name = "createdAt", updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    @Column(name = "updatedAt")
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @Column(nullable = true)
     private String imageUrl;
 
-    @Column(nullable = false, columnDefinition = "bigint default 0")
+    @Column(nullable = false)
     private Long point = 0L;
 
     @Enumerated(EnumType.STRING)
@@ -72,9 +73,9 @@ public class User {
 
     public enum Role { USER, ADMIN }
 
-    @OneToMany(mappedBy = "review")
+    @OneToMany(mappedBy = "user")
     private List<Review> reviews = new ArrayList<>();
 
-    @OneToMany(mappedBy = "comment")
+    @OneToMany(mappedBy = "user")
     private List<Comment> comments = new ArrayList<>();
 }
