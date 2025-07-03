@@ -12,6 +12,8 @@ import com.bookmakase.domain.Book;
 import com.bookmakase.dto.admin.BookAdminCreateRequest;
 import com.bookmakase.dto.admin.BookAdminPageResponse;
 import com.bookmakase.dto.admin.BookAdminResponse;
+import com.bookmakase.dto.admin.BookAdminUpdateRequest;
+import com.bookmakase.exception.BookNotFoundException;
 import com.bookmakase.repository.BookAdminRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -39,6 +41,14 @@ public class BookAdminService {
 	public BookAdminResponse createBook(BookAdminCreateRequest request) {
 		Book saved = bookAdminRepository.save(request.toDomain());
 		return BookAdminResponse.from(saved);
+	}
+
+	public BookAdminResponse updateBook(Long bookId, BookAdminUpdateRequest request) {
+		Book book = bookAdminRepository.findById(bookId)
+			.orElseThrow(() -> new BookNotFoundException(bookId));
+		book.setTitle(request.getTitle());
+
+		return BookAdminResponse.from(book);
 	}
 
 }
