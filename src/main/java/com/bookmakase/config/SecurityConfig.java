@@ -42,7 +42,8 @@ public class SecurityConfig {
 					"/swagger-resources/**",
 					"/webjars/**",
 					"/swagger-ui.html",
-					"/api/v1/admin/**"
+					"/api/v1/admin/**",
+					"/api/v1/books/**"
 				).permitAll()
 
 				.requestMatchers("/error").permitAll()
@@ -71,7 +72,7 @@ public class SecurityConfig {
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowedOrigins(List.of(
 			"http://localhost:3000", // 개발용
-			"https://api.bookmakase.com" // 배포 서버용
+			"https://bookmakase.com" // 배포 서버용
 		)); // ✅ 프론트 도메인 허용
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
 		config.setAllowedHeaders(List.of("*"));
