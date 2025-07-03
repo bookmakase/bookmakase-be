@@ -47,13 +47,22 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
 	}
 
-	// 리뷰 파트
+	// 책 파트
 	@ExceptionHandler(BookNotFoundException.class)
 	public ResponseEntity<Map<String, Object>> handleBookNotFoundException(BookNotFoundException ex) {
 		Map<String, Object> body = new LinkedHashMap<>();
 		body.put("status", 404);
 		body.put("message", ex.getMessage());
 
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+	}
+
+	// 리뷰 파트
+	@ExceptionHandler(ReviewNotFoundException.class)
+	public ResponseEntity<Map<String, Object>> handleReviewNotFoundException(ReviewNotFoundException ex) {
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("status", 404);
+		body.put("message", ex.getMessage());
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
 	}
 }
