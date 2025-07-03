@@ -47,6 +47,6 @@ public class Review {
 	@Column(name = "is_deleted")
 	private boolean isDeleted;
 
-	@OneToMany(mappedBy = "comment")
+	@OneToMany(mappedBy = "review")
 	private List<Comment> comments = new ArrayList<>();
 }
