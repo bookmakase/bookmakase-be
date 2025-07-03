@@ -25,6 +25,7 @@ public class GlobalExceptionHandler {
 			.body(body);
 	}
 
+	// 회원 파트
 	@ExceptionHandler(DuplicateEmailException.class)
 	public ResponseEntity<Map<String, Object>> handleDuplicateEmailException(DuplicateEmailException ex) {
 		Map<String, Object> body = new LinkedHashMap<>();
@@ -35,5 +36,24 @@ public class GlobalExceptionHandler {
 		body.put("error", "이메일 중복 오류");
 
 		return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+	}
+
+	@ExceptionHandler(UserNotFoundException.class)
+	public ResponseEntity<Map<String, Object>> handleUserNotFoundException(UserNotFoundException ex) {
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("status", 404);
+		body.put("message", ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+	}
+
+	// 리뷰 파트
+	@ExceptionHandler(BookNotFoundException.class)
+	public ResponseEntity<Map<String, Object>> handleBookNotFoundException(BookNotFoundException ex) {
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("status", 404);
+		body.put("message", ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
 	}
 }
