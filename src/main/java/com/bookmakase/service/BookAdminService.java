@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.bookmakase.domain.Book;
+import com.bookmakase.dto.admin.BookAdminCreateRequest;
 import com.bookmakase.dto.admin.BookAdminPageResponse;
 import com.bookmakase.dto.admin.BookAdminResponse;
 import com.bookmakase.repository.BookAdminRepository;
@@ -34,4 +35,10 @@ public class BookAdminService {
 
 		return BookAdminPageResponse.from(content, result);
 	}
+
+	public BookAdminResponse createBook(BookAdminCreateRequest request) {
+		Book saved = bookAdminRepository.save(request.toDomain());
+		return BookAdminResponse.from(saved);
+	}
+
 }
