@@ -111,4 +111,13 @@ public class UserService implements UserDetailsService {
 
         return AddressUpdateResponse.from(user);
     }
+
+    public UserResponse updateIntro(Long userId, String intro) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(()-> new RuntimeException("사용자를 찾을 수 없습니다." + userId));
+
+        user.setIntro(intro);
+        userRepository.save(user);
+        return UserResponse.from(user);
+    }
 }
