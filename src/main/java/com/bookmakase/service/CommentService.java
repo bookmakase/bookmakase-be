@@ -82,4 +82,21 @@ public class CommentService {
 			.comment(comment.getComment())
 			.build();
 	}
+
+	public void deleteComment(Long commentId, String email) {
+		// 1. 답글이 있는지
+		Comment comment = commentRepository.findById(commentId)
+			.orElseThrow(() -> new CommentNotFoundException("답글이 존재하지 않습니다."));
+
+		// 2. 사용자가 맞는지
+		User user = userRepository.findByEmail(email)
+			.orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+
+		// 3. 답글의 소유자가 맞는지
+		if (!comment.getUser().getUserId().equals(user.getUserId())) {
+			throw new CommentAccessDeniedException("답글을 삭제할 수 있는 권한이 없습니다.");
+		}
+
+		commentRepository.deleteById(commentId);
+	}
 }

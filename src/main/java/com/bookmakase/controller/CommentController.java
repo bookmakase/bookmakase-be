@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -58,5 +59,18 @@ public class CommentController {
 
 		String email = userDetails.getUsername();
 		return ResponseEntity.ok(commentService.updateComment(Long.parseLong(commentId), request, email));
+	}
+
+	@DeleteMapping("/comments/{commentId}")
+	public ResponseEntity<Void> deleteComment(
+		@PathVariable String commentId, @AuthenticationPrincipal UserDetails userDetails
+	) {
+		if (!NumberValidationUtils.isParsableAsLong(commentId)) {
+			throw new InvalidException("답글 id 값이 유효하지 않습니다.");
+		}
+
+		String email = userDetails.getUsername();
+		commentService.deleteComment(Long.parseLong(commentId), email);
+		return ResponseEntity.noContent().build();
 	}
 }
