@@ -2,6 +2,10 @@ package com.bookmakase.service;
 
 import java.time.LocalDateTime;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,8 +14,12 @@ import com.bookmakase.domain.Review;
 import com.bookmakase.domain.User;
 import com.bookmakase.dto.comment.CommentCreateRequest;
 import com.bookmakase.dto.comment.CommentCreateResponse;
+import com.bookmakase.dto.comment.CommentListRequest;
+import com.bookmakase.dto.comment.CommentPageResponse;
+import com.bookmakase.dto.comment.CommentResponse;
 import com.bookmakase.dto.comment.CommentUpdateRequest;
 import com.bookmakase.dto.comment.CommentUpdateResponse;
+import com.bookmakase.dto.user.OneUserResponse;
 import com.bookmakase.exception.comment.CommentAccessDeniedException;
 import com.bookmakase.exception.comment.CommentNotFoundException;
 import com.bookmakase.exception.review.ReviewAlreadyDeletedException;
@@ -30,6 +38,41 @@ public class CommentService {
 	private final CommentRepository commentRepository;
 	private final ReviewRepository reviewRepository;
 	private final UserRepository userRepository;
+
+	@Transactional(readOnly = true)
+	public CommentPageResponse getComments(Long reviewId, CommentListRequest request) {
+		// 1. 리뷰가 있는지
+		Review review = reviewRepository.findById(reviewId)
+			.orElseThrow(() -> new ReviewNotFoundException("존재하지 않는 리뷰입니다."));
+
+		Sort sort = Sort.by(Sort.Direction.ASC, "createdAt");
+		Pageable pageable = PageRequest.of(request.getPage(), 10, sort);
+
+		Page<Comment> comments = commentRepository.findByReviewReviewId(review.getReviewId(), pageable);
+		Page<CommentResponse> commentPage = comments.map(
+			comment -> {
+				OneUserResponse oneUserResponse = new OneUserResponse();
+				oneUserResponse.setUserId(comment.getUser().getUserId());
+				oneUserResponse.setUsername(comment.getUser().getUsername());
+
+				return CommentResponse.builder()
+					.commentId(comment.getCommentId())
+					.reviewId(comment.getReview().getReviewId())
+					.user(oneUserResponse)
+					.updatedAt(comment.getUpdatedAt())
+					.comment(comment.getComment())
+					.build();
+			}
+		);
+
+		return CommentPageResponse.builder()
+			.page(commentPage.getNumber())
+			.size(commentPage.getSize())
+			.totalElements(commentPage.getTotalElements())
+			.totalPages(commentPage.getTotalPages())
+			.comments(commentPage.getContent())
+			.build();
+	}
 
 	public CommentCreateResponse createComment(Long reviewId, CommentCreateRequest request, String email) {
 		// 1. 리뷰가 있는지
