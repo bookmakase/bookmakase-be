@@ -3,6 +3,10 @@ package com.bookmakase.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,10 +15,14 @@ import com.bookmakase.domain.Review;
 import com.bookmakase.domain.User;
 import com.bookmakase.dto.review.ReviewCreateRequest;
 import com.bookmakase.dto.review.ReviewCreateResponse;
+import com.bookmakase.dto.review.ReviewListRequest;
+import com.bookmakase.dto.review.ReviewPageResponse;
 import com.bookmakase.dto.review.ReviewPatchResponse;
 import com.bookmakase.dto.review.ReviewResponse;
 import com.bookmakase.dto.review.ReviewUpdateRequest;
 import com.bookmakase.dto.review.ReviewUpdateResponse;
+import com.bookmakase.dto.user.OneUserResponse;
+import com.bookmakase.exception.auth.UnauthorizedException;
 import com.bookmakase.exception.book.BookNotFoundException;
 import com.bookmakase.exception.review.ReviewAccessDeniedException;
 import com.bookmakase.exception.review.ReviewAlreadyDeletedException;
@@ -35,12 +43,65 @@ public class ReviewService {
 	private final ReviewRepository reviewRepository;
 	private final BookRepository bookRepository;
 	private final UserRepository userRepository;
+	private final AuthService authService;
+
+	// @Transactional(readOnly = true)
+	// public List<ReviewResponse> getReviewsByBookId(Long bookId) {
+	// 	List<Review> reviews = reviewRepository.findByBookBookId(bookId);
+	//
+	// 	return reviews.stream().map(ReviewResponse::from).toList();
+	// }
 
 	@Transactional(readOnly = true)
-	public List<ReviewResponse> getReviewsByBookId(Long bookId) {
-		List<Review> reviews = reviewRepository.findByBookBookId(bookId);
+	public ReviewPageResponse getAllReviewsByBookId(Long bookId, ReviewListRequest request) {
+		// 1. 책이 있는지
+		Book book = bookRepository.findById(bookId)
+			.orElseThrow(() -> new BookNotFoundException("존재하지 않는 도서입니다."));
 
-		return reviews.stream().map(ReviewResponse::from).toList();
+		// 2. 내가 쓴 리뷰 필터에 대한 로그인 검증
+		Long userId = null;
+		if (request.isMyReviewOnly()) {
+			User user = authService.getCurrentUser();
+			if (user == null) {
+				throw new UnauthorizedException("로그인이 필요합니다.");
+			}
+			userId = user.getUserId();
+		}
+
+		Sort sort = Sort.by(Sort.Direction.DESC, request.getSortBy().getFilterName());
+		Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
+
+		Page<Review> reviews;
+		if (request.isMyReviewOnly()) {
+			reviews = reviewRepository.findByBookBookIdAndUserUserId(bookId, userId, pageable);
+		} else {
+			reviews = reviewRepository.findByBookBookId(bookId, pageable);
+		}
+
+		Page<ReviewResponse> reviewsPage = reviews.map(
+			review -> {
+				OneUserResponse oneUserResponse = new OneUserResponse();
+				oneUserResponse.setUserId(review.getUser().getUserId());
+				oneUserResponse.setUsername(review.getUser().getUsername());
+
+				return ReviewResponse.builder()
+				.reviewId(review.getReviewId())
+				.user(oneUserResponse)
+				.rating(review.getRating())
+				.content(review.getContent())
+				.updatedAt(review.getUpdatedAt())
+				.isDeleted(review.isDeleted())
+				.build();
+			}
+		);
+
+		return ReviewPageResponse.builder()
+			.page(reviewsPage.getNumber())
+			.size(reviewsPage.getSize())
+			.totalElements(reviewsPage.getTotalElements())
+			.totalPages(reviewsPage.getTotalPages())
+			.reviews(reviewsPage.getContent())
+			.build();
 	}
 
 	public ReviewCreateResponse createReview(Long bookId, ReviewCreateRequest request, String email) {
