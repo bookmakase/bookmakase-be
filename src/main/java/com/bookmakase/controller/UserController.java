@@ -4,6 +4,7 @@ package com.bookmakase.controller;
 import com.bookmakase.domain.User;
 import com.bookmakase.dto.user.AddressUpdateRequest;
 import com.bookmakase.dto.user.AddressUpdateResponse;
+import com.bookmakase.dto.user.InformationUpdateRequest;
 import com.bookmakase.dto.user.IntroUpdateRequest;
 import com.bookmakase.dto.user.OneUserResponse;
 import com.bookmakase.dto.user.PointUpdateRequest;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -74,6 +76,21 @@ public class UserController {
         }
 
         UserResponse updated = userService.updateIntro(current.getUserId(), request.getIntro());
+        return ResponseEntity.status(HttpStatus.OK).body(updated);
+    }
+
+
+    @PutMapping("/information")
+    public ResponseEntity<UserResponse> putUserInformation(@RequestBody @Valid InformationUpdateRequest request) {
+        User current = authService.getCurrentUser();
+
+        if(current == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        UserResponse updated = userService.updateInformation(current.getUserId(), request);
+
+
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 }
