@@ -14,6 +14,7 @@ import com.bookmakase.dto.comment.CommentUpdateRequest;
 import com.bookmakase.dto.comment.CommentUpdateResponse;
 import com.bookmakase.exception.comment.CommentAccessDeniedException;
 import com.bookmakase.exception.comment.CommentNotFoundException;
+import com.bookmakase.exception.review.ReviewAlreadyDeletedException;
 import com.bookmakase.exception.review.ReviewNotFoundException;
 import com.bookmakase.exception.user.UserNotFoundException;
 import com.bookmakase.repository.CommentRepository;
@@ -38,6 +39,11 @@ public class CommentService {
 		// 2. 사용자가 맞는지
 		User user = userRepository.findByEmail(email)
 			.orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+
+		// 3. 리뷰가 삭제 상태인지
+		if (review.isDeleted()) {
+			throw new ReviewAlreadyDeletedException("리뷰가 삭제되어 답글을 작성할 수 없습니다.");
+		}
 
 		Comment comment = Comment.builder()
 			.review(review)
