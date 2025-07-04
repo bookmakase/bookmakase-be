@@ -20,7 +20,7 @@ import com.bookmakase.exception.review.ReviewAccessDeniedException;
 import com.bookmakase.exception.review.ReviewAlreadyDeletedException;
 import com.bookmakase.exception.review.ReviewNotFoundException;
 import com.bookmakase.exception.user.UserNotFoundException;
-import com.bookmakase.repository.BookRepository;
+import com.bookmakase.repository.BookHomeRepository;
 import com.bookmakase.repository.ReviewRepository;
 import com.bookmakase.repository.UserRepository;
 
@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ReviewService {
 	private final ReviewRepository reviewRepository;
-	private final BookRepository bookRepository;
+	private final BookHomeRepository bookHomeRepository;
 	private final UserRepository userRepository;
 
 	@Transactional(readOnly = true)
@@ -45,7 +45,7 @@ public class ReviewService {
 
 	public ReviewCreateResponse createReview(Long bookId, ReviewCreateRequest request, String email) {
 		// 1. 책이 있는지
-		Book book = bookRepository.findById(bookId)
+		Book book = bookHomeRepository.findById(bookId)
 			.orElseThrow(() -> new BookNotFoundException("존재하지 않는 도서입니다."));
 
 		// 2. 사용자가 맞는지

@@ -16,7 +16,7 @@ import com.bookmakase.dto.admin.BookAdminDetailResponse;
 import com.bookmakase.dto.admin.BookAdminPageResponse;
 import com.bookmakase.dto.admin.BookAdminResponse;
 import com.bookmakase.dto.admin.BookAdminUpdateRequest;
-import com.bookmakase.exception.BookNotFoundException;
+import com.bookmakase.exception.book.BookNotFoundException;
 import com.bookmakase.repository.BookAdminRepository;
 
 import lombok.RequiredArgsConstructor;
