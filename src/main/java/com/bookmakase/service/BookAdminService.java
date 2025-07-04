@@ -51,13 +51,12 @@ public class BookAdminService {
 	public BookAdminDetailResponse getBookById(Long bookId) {
 		return bookAdminRepository.findById(bookId)
 			.map(BookAdminDetailResponse::from)
-			.orElseThrow(() -> new BookNotFoundException(bookId));
+			.orElseThrow(() -> new BookNotFoundException("존재하지 않는 도서입니다."));
 	}
 
-	@Transactional
 	public BookAdminDetailResponse updateBook(Long bookId, BookAdminUpdateRequest request) {
 		Book book = bookAdminRepository.findById(bookId)
-			.orElseThrow(() -> new BookNotFoundException(bookId));
+			.orElseThrow(() -> new BookNotFoundException("존재하지 않는 도서입니다."));
 
 		book.setTitle(request.getTitle());
 		book.setContents(request.getContents());
