@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.bookmakase.exception.auth.DuplicateEmailException;
 import com.bookmakase.exception.auth.UnauthorizedException;
 import com.bookmakase.exception.book.BookNotFoundException;
+import com.bookmakase.exception.common.InvalidException;
 import com.bookmakase.exception.review.ReviewAccessDeniedException;
 import com.bookmakase.exception.review.ReviewAlreadyDeletedException;
 import com.bookmakase.exception.review.ReviewNotFoundException;
@@ -31,6 +32,14 @@ public class GlobalExceptionHandler {
 		return ResponseEntity
 			.status(HttpStatus.INTERNAL_SERVER_ERROR)
 			.body(body);
+	}
+
+	@ExceptionHandler(InvalidException.class)
+	public ResponseEntity<Map<String, Object>> handleInvalidException(InvalidException ex) {
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("status", 400);
+		body.put("message", ex.getMessage());
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
 	}
 
 	// 인증 파트

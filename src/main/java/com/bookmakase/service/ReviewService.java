@@ -65,9 +65,9 @@ public class ReviewService {
 
 		Page<Review> reviews;
 		if (request.isMyReviewOnly()) {
-			reviews = reviewRepository.findByBookBookIdAndUserUserId(bookId, userId, pageable);
+			reviews = reviewRepository.findByBookBookIdAndUserUserId(book.getBookId(), userId, pageable);
 		} else {
-			reviews = reviewRepository.findByBookBookId(bookId, pageable);
+			reviews = reviewRepository.findByBookBookId(book.getBookId(), pageable);
 		}
 
 		Page<ReviewResponse> reviewsPage = reviews.map(
@@ -77,13 +77,13 @@ public class ReviewService {
 				oneUserResponse.setUsername(review.getUser().getUsername());
 
 				return ReviewResponse.builder()
-				.reviewId(review.getReviewId())
-				.user(oneUserResponse)
-				.rating(review.getRating())
-				.content(review.getContent())
-				.updatedAt(review.getUpdatedAt())
-				.isDeleted(review.isDeleted())
-				.build();
+					.reviewId(review.getReviewId())
+					.user(oneUserResponse)
+					.rating(review.getRating())
+					.content(review.getContent())
+					.updatedAt(review.getUpdatedAt())
+					.isDeleted(review.isDeleted())
+					.build();
 			}
 		);
 
