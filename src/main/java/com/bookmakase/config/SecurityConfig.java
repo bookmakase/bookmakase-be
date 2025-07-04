@@ -6,6 +6,7 @@ import com.bookmakase.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -57,8 +58,7 @@ public class SecurityConfig {
 		return http.build();
 	}
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {return new BCryptPasswordEncoder();}
+
 
 	@Bean
 	public AuthenticationManager authenticationManager(
@@ -67,6 +67,7 @@ public class SecurityConfig {
 		return authenticationConfiguration.getAuthenticationManager();
 	}
 
+
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
@@ -74,7 +75,7 @@ public class SecurityConfig {
 			"http://localhost:3000", // 개발용
 			"https://bookmakase.com" // 배포 서버용
 		)); // ✅ 프론트 도메인 허용
-		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE"));
 		config.setAllowedHeaders(List.of("*"));
 		config.setAllowCredentials(true); // ✅ Authorization 헤더 포함 허용
 
