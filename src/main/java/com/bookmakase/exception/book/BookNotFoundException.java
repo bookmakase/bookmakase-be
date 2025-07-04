@@ -1,4 +1,4 @@
-package com.bookmakase.exception;
+package com.bookmakase.exception.book;
 
 public class BookNotFoundException extends RuntimeException {
 	public BookNotFoundException(String message) {

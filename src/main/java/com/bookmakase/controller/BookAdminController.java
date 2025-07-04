@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bookmakase.dto.admin.BookAdminCreateRequest;
+import com.bookmakase.dto.admin.BookAdminDetailResponse;
 import com.bookmakase.dto.admin.BookAdminPageResponse;
-import com.bookmakase.dto.admin.BookAdminResponse;
 import com.bookmakase.dto.admin.BookAdminUpdateRequest;
 import com.bookmakase.service.BookAdminService;
 
@@ -36,21 +36,20 @@ public class BookAdminController {
 	}
 
 	@PostMapping
-	public ResponseEntity<BookAdminResponse> createBook(@RequestBody BookAdminCreateRequest request) {
-		BookAdminResponse response = bookAdminService.createBook(request);
+	public ResponseEntity<BookAdminDetailResponse> createBook(@RequestBody BookAdminCreateRequest request) {
+		BookAdminDetailResponse response = bookAdminService.createBook(request);
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
-	@GetMapping("/{book_id}")
-	public ResponseEntity<BookAdminResponse> getById(@PathVariable("book_id") Long bookId) {
-		return ResponseEntity.ok(bookAdminService.getPostById(id));
+	@GetMapping("/{bookId}")
+	public ResponseEntity<BookAdminDetailResponse> getById(@PathVariable Long bookId) {
+		return ResponseEntity.ok(bookAdminService.getBookById(bookId));
 	}
 
-	@PutMapping("/{book_id}")
-	public ResponseEntity<BookAdminResponse> updateBook(@PathVariable("book_id") Long bookId,
+	@PutMapping("/{bookId}")
+	public ResponseEntity<BookAdminDetailResponse> updateBook(@PathVariable Long bookId,
 		@RequestBody BookAdminUpdateRequest request) {
 		return ResponseEntity.ok(bookAdminService.updateBook(bookId, request));
 	}
-
 }

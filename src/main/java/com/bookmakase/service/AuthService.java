@@ -8,8 +8,11 @@ import com.bookmakase.dto.user.JwtResponse;
 import com.bookmakase.dto.user.LoginRequest;
 import com.bookmakase.dto.user.SignUpRequest;
 import com.bookmakase.dto.user.UserResponse;
-import com.bookmakase.exception.DuplicateEmailException;
-import com.bookmakase.exception.DuplicateUsernameException;
+import com.bookmakase.repository.RefreshTokenRepository;
+import com.bookmakase.repository.UserRepository;
+
+import com.bookmakase.exception.auth.DuplicateEmailException;
+import com.bookmakase.exception.auth.DuplicateUsernameException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +36,8 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final com.bookmakase.utils.JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
-
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public UserResponse register(@Valid SignUpRequest signUpRequest) {
@@ -117,9 +121,26 @@ public class AuthService {
                 return newAccessToken;
     }
 
-    public void logout() {
+    public void logout(String refreshToken) {
+
+        RefreshToken refresh = refreshTokenRepository.findByRefreshToken(refreshToken).orElseThrow(()->new RuntimeException("리프레시 토큰이 유효하지 않습니다."));
+
+        if(refresh != null) {
+            refreshTokenRepository.delete(refresh);
+        }
+
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String email = userDetails.getUsername();
-        refreshTokenService.deleteByUsername(email);
+        log.info("User1: {}", email);
+        User user = userRepository.findByEmail(email).orElse(null);
+        log.info("User2: {}", user.getEmail());
+        if(!email.equals(user.getEmail())) {
+            throw new DuplicateEmailException();
+        }
+
+
+        refreshTokenService.deleteByUsername(user.getUsername());
+
     }
+
 }
