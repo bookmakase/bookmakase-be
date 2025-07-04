@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.bookmakase.exception.auth.DuplicateEmailException;
 import com.bookmakase.exception.auth.UnauthorizedException;
 import com.bookmakase.exception.book.BookNotFoundException;
+import com.bookmakase.exception.comment.CommentAccessDeniedException;
+import com.bookmakase.exception.comment.CommentNotFoundException;
 import com.bookmakase.exception.common.InvalidException;
 import com.bookmakase.exception.review.ReviewAccessDeniedException;
 import com.bookmakase.exception.review.ReviewAlreadyDeletedException;
@@ -102,6 +104,23 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(ReviewAccessDeniedException.class)
 	public ResponseEntity<Map<String, Object>> handleReviewAccessDeniedException(ReviewAccessDeniedException ex) {
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("status", 403);
+		body.put("message", ex.getMessage());
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+	}
+
+	// 답글 파트
+	@ExceptionHandler(CommentNotFoundException.class)
+	public ResponseEntity<Map<String, Object>> handleCommentNotFoundException(CommentNotFoundException ex) {
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("status", 404);
+		body.put("message", ex.getMessage());
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+	}
+
+	@ExceptionHandler(CommentAccessDeniedException.class)
+	public ResponseEntity<Map<String, Object>> handleCommentAccessDeniedException(CommentAccessDeniedException ex) {
 		Map<String, Object> body = new LinkedHashMap<>();
 		body.put("status", 403);
 		body.put("message", ex.getMessage());

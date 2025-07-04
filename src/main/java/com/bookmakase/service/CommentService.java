@@ -10,6 +10,10 @@ import com.bookmakase.domain.Review;
 import com.bookmakase.domain.User;
 import com.bookmakase.dto.comment.CommentCreateRequest;
 import com.bookmakase.dto.comment.CommentCreateResponse;
+import com.bookmakase.dto.comment.CommentUpdateRequest;
+import com.bookmakase.dto.comment.CommentUpdateResponse;
+import com.bookmakase.exception.comment.CommentAccessDeniedException;
+import com.bookmakase.exception.comment.CommentNotFoundException;
 import com.bookmakase.exception.review.ReviewNotFoundException;
 import com.bookmakase.exception.user.UserNotFoundException;
 import com.bookmakase.repository.CommentRepository;
@@ -51,6 +55,31 @@ public class CommentService {
 			.commentId(savedComment.getCommentId())
 			.createdAt(savedComment.getCreatedAt())
 			.comment(savedComment.getComment())
+			.build();
+	}
+
+	public CommentUpdateResponse updateComment(Long commentId, CommentUpdateRequest request, String email) {
+		// 1. 답글이 있는지
+		Comment comment = commentRepository.findById(commentId)
+			.orElseThrow(() -> new CommentNotFoundException("답글이 존재하지 않습니다."));
+
+		// 2. 사용자가 맞는지
+		User user = userRepository.findByEmail(email)
+			.orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+
+		// 3. 답글의 소유자가 맞는지
+		if (!comment.getUser().getUserId().equals(user.getUserId())) {
+			throw new CommentAccessDeniedException("답글을 수정할 수 있는 권한이 없습니다.");
+		}
+
+		comment.setComment(request.getComment());
+		comment.setUpdatedAt(LocalDateTime.now());
+
+		return CommentUpdateResponse.builder()
+			.commentId(comment.getCommentId())
+			.userId(comment.getUser().getUserId())
+			.updatedAt(comment.getUpdatedAt())
+			.comment(comment.getComment())
 			.build();
 	}
 }

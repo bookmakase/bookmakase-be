@@ -148,11 +148,12 @@ public class ReviewService {
 
 		review.setRating(request.getRating());
 		review.setContent(request.getContent());
+		review.setUpdatedAt(LocalDateTime.now());
 
 		return ReviewUpdateResponse.builder()
 			.reviewId(review.getReviewId())
 			.userId(user.getUserId())
-			.updatedAt(LocalDateTime.now())
+			.updatedAt(review.getUpdatedAt())
 			.rating(review.getRating())
 			.content(review.getContent())
 			.build();
