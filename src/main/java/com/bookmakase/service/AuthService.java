@@ -8,11 +8,11 @@ import com.bookmakase.dto.user.JwtResponse;
 import com.bookmakase.dto.user.LoginRequest;
 import com.bookmakase.dto.user.SignUpRequest;
 import com.bookmakase.dto.user.UserResponse;
-import com.bookmakase.exception.DuplicateEmailException;
-import com.bookmakase.exception.DuplicateUsernameException;
 import com.bookmakase.repository.RefreshTokenRepository;
 import com.bookmakase.repository.UserRepository;
 
+import com.bookmakase.exception.auth.DuplicateEmailException;
+import com.bookmakase.exception.auth.DuplicateUsernameException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

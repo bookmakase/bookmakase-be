@@ -2,7 +2,6 @@ package com.bookmakase.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,18 +11,26 @@ import com.bookmakase.domain.Review;
 import com.bookmakase.domain.User;
 import com.bookmakase.dto.review.ReviewCreateRequest;
 import com.bookmakase.dto.review.ReviewCreateResponse;
+import com.bookmakase.dto.review.ReviewPatchResponse;
 import com.bookmakase.dto.review.ReviewResponse;
-import com.bookmakase.exception.BookNotFoundException;
-import com.bookmakase.exception.UserNotFoundException;
+import com.bookmakase.dto.review.ReviewUpdateRequest;
+import com.bookmakase.dto.review.ReviewUpdateResponse;
+import com.bookmakase.exception.book.BookNotFoundException;
+import com.bookmakase.exception.review.ReviewAccessDeniedException;
+import com.bookmakase.exception.review.ReviewAlreadyDeletedException;
+import com.bookmakase.exception.review.ReviewNotFoundException;
+import com.bookmakase.exception.user.UserNotFoundException;
 import com.bookmakase.repository.BookRepository;
 import com.bookmakase.repository.ReviewRepository;
 import com.bookmakase.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class ReviewService {
 	private final ReviewRepository reviewRepository;
 	private final BookRepository bookRepository;
@@ -64,6 +71,69 @@ public class ReviewService {
 			.createdAt(savedReview.getCreatedAt())
 			.rating(savedReview.getRating())
 			.content(savedReview.getContent())
+			.build();
+	}
+
+	public ReviewUpdateResponse updateReview(Long reviewId, ReviewUpdateRequest request, String email) {
+		// 1. 리뷰가 있는지
+		Review review = reviewRepository.findById(reviewId)
+			.orElseThrow(() -> new ReviewNotFoundException("존재하지 않는 리뷰입니다."));
+
+		// 2. 삭제된 리뷰인지
+		if (review.isDeleted()) {
+			throw new ReviewAlreadyDeletedException("이미 삭제된 리뷰입니다.");
+		}
+
+		// 3. 사용자가 있는지
+		User user = userRepository.findByEmail(email)
+			.orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+
+		// 4. 리뷰의 소유자가 맞는지
+		if (!review.getUser().getUserId().equals(user.getUserId())) {
+			throw new ReviewAccessDeniedException("리뷰를 수정할 수 있는 권한이 없습니다.");
+		}
+
+		review.setRating(request.getRating());
+		review.setContent(request.getContent());
+
+		return ReviewUpdateResponse.builder()
+			.reviewId(review.getReviewId())
+			.userId(user.getUserId())
+			.updatedAt(LocalDateTime.now())
+			.rating(review.getRating())
+			.content(review.getContent())
+			.build();
+	}
+
+	public ReviewPatchResponse patchReview(Long reviewId, String email) {
+		// 1. 리뷰가 있는지
+		Review review = reviewRepository.findById(reviewId)
+			.orElseThrow(() -> new ReviewNotFoundException("존재하지 않는 리뷰입니다."));
+
+		// 2. 사용자가 있는지
+		User user = userRepository.findByEmail(email)
+			.orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+
+		// 3. 리뷰의 소유자가 맞는지
+		if (!review.getUser().getUserId().equals(user.getUserId())) {
+			if (review.isDeleted()) {
+				throw new ReviewAccessDeniedException("리뷰를 복구할 수 있는 권한이 없습니다.");
+			} else {
+				throw new ReviewAccessDeniedException("리뷰를 삭제할 수 있는 권한이 없습니다.");
+			}
+		}
+
+		log.info("현재 리뷰의 삭제값: {}", review.isDeleted());
+
+		// 삭제된 상태면 복구로, 삭제되지 않은 상태면 삭제로
+		review.setDeleted(!review.isDeleted());
+		review.setUpdatedAt(LocalDateTime.now());
+
+		return ReviewPatchResponse.builder()
+			.reviewId(review.getReviewId())
+			.userId(user.getUserId())
+			.updatedAt(review.getUpdatedAt())
+			.isDeleted(review.isDeleted())
 			.build();
 	}
 }
