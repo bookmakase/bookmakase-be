@@ -23,6 +23,7 @@ import com.bookmakase.dto.review.ReviewUpdateRequest;
 import com.bookmakase.dto.review.ReviewUpdateResponse;
 import com.bookmakase.service.ReviewService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -42,7 +43,7 @@ public class ReviewController {
 	@PostMapping("/books/{bookId}/reviews")
 	public ResponseEntity<ReviewCreateResponse> postReview(
 		@PathVariable Long bookId,
-		@RequestBody ReviewCreateRequest request,
+		@Valid @RequestBody ReviewCreateRequest request,
 		@AuthenticationPrincipal UserDetails user
 	) {
 		String email = user.getUsername();
