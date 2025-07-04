@@ -1,7 +1,6 @@
 package com.bookmakase.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,7 +27,7 @@ import com.bookmakase.exception.review.ReviewAccessDeniedException;
 import com.bookmakase.exception.review.ReviewAlreadyDeletedException;
 import com.bookmakase.exception.review.ReviewNotFoundException;
 import com.bookmakase.exception.user.UserNotFoundException;
-import com.bookmakase.repository.BookRepository;
+import com.bookmakase.repository.BookHomeRepository;
 import com.bookmakase.repository.ReviewRepository;
 import com.bookmakase.repository.UserRepository;
 
@@ -41,16 +40,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ReviewService {
 	private final ReviewRepository reviewRepository;
-	private final BookRepository bookRepository;
+	private final BookHomeRepository bookRepository;
 	private final UserRepository userRepository;
 	private final AuthService authService;
-
-	// @Transactional(readOnly = true)
-	// public List<ReviewResponse> getReviewsByBookId(Long bookId) {
-	// 	List<Review> reviews = reviewRepository.findByBookBookId(bookId);
-	//
-	// 	return reviews.stream().map(ReviewResponse::from).toList();
-	// }
 
 	@Transactional(readOnly = true)
 	public ReviewPageResponse getAllReviewsByBookId(Long bookId, ReviewListRequest request) {

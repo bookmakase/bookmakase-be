@@ -4,6 +4,7 @@ package com.bookmakase.service;
 
 import com.bookmakase.domain.User;
 import com.bookmakase.dto.user.AddressUpdateResponse;
+import com.bookmakase.dto.user.InformationUpdateRequest;
 import com.bookmakase.dto.user.OneUserResponse;
 import com.bookmakase.dto.user.PointUpdateResponse;
 import com.bookmakase.dto.user.SignUpRequest;
@@ -11,17 +12,15 @@ import com.bookmakase.dto.user.UserResponse;
 import com.bookmakase.repository.UserRepository;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 
@@ -31,6 +30,7 @@ import java.util.Optional;
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
 
+    private final PasswordEncoder passwordEncoder;
 
     /* ① UserDetailsService 필수 메서드 */
     @Override
@@ -102,6 +102,7 @@ public class UserService implements UserDetailsService {
        return PointUpdateResponse.from(user);
     }
 
+    @Transactional
     public AddressUpdateResponse updateAddress(Long userId, String address) {
         User user = userRepository.findById(userId)
             .orElseThrow(()-> new RuntimeException("사용자를 찾을 수 없습니다." + userId));
@@ -112,11 +113,42 @@ public class UserService implements UserDetailsService {
         return AddressUpdateResponse.from(user);
     }
 
+    @Transactional
     public UserResponse updateIntro(Long userId, String intro) {
         User user = userRepository.findById(userId)
             .orElseThrow(()-> new RuntimeException("사용자를 찾을 수 없습니다." + userId));
 
         user.setIntro(intro);
+        userRepository.save(user);
+        return UserResponse.from(user);
+    }
+
+    @Transactional
+	public UserResponse updateInformation(Long userId, @Valid InformationUpdateRequest request) {
+	    User user = userRepository.findById(userId)
+            .orElseThrow(()-> new RuntimeException("사용자를 찾을 수 없습니다." + userId));
+
+        // 비밀번호 변경
+        if (StringUtils.hasText(request.getNewPassword())) {
+            if(!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+                throw new RuntimeException("비밀번호가 서로 다릅니다.");
+            }
+            if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
+                throw new RuntimeException("변경하려는 비밀번호가 서로 다릅니다.");
+            }
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        }
+
+        // 닉네임 변경
+        if (StringUtils.hasText(request.getNewUsername())
+        && !request.getNewUsername().equals(user.getUsername())
+        ) {
+            if(userRepository.existsByUsername(request.getNewUsername())) {
+                throw new RuntimeException("변경하려는 닉네임이 중복입니다.");
+            }
+            user.setUsername(request.getNewUsername());
+        }
+
         userRepository.save(user);
         return UserResponse.from(user);
     }

@@ -11,7 +11,6 @@ import com.bookmakase.domain.Review;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-	// List<Review> findByBookBookId(Long bookId);
 	Page<Review> findByBookBookId(Long bookId, Pageable pageable);
 	Page<Review> findByBookBookIdAndUserUserId(Long bookId, Long userId, Pageable pageable);
 }
