@@ -16,7 +16,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BookAdminCreateRequest {
+public class BookAdminUpdateRequest {
 	private String title;
 	private String contents;
 	private String isbn;
