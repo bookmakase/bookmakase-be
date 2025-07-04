@@ -1,4 +1,4 @@
-package com.bookmakase.exception;
+package com.bookmakase.exception.auth;
 
 public class InvalidCredentialsException extends RuntimeException {
     public InvalidCredentialsException() {

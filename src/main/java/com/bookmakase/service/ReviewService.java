@@ -13,9 +13,13 @@ import com.bookmakase.dto.review.ReviewCreateRequest;
 import com.bookmakase.dto.review.ReviewCreateResponse;
 import com.bookmakase.dto.review.ReviewPatchResponse;
 import com.bookmakase.dto.review.ReviewResponse;
-import com.bookmakase.exception.BookNotFoundException;
-import com.bookmakase.exception.ReviewNotFoundException;
-import com.bookmakase.exception.UserNotFoundException;
+import com.bookmakase.dto.review.ReviewUpdateRequest;
+import com.bookmakase.dto.review.ReviewUpdateResponse;
+import com.bookmakase.exception.book.BookNotFoundException;
+import com.bookmakase.exception.review.ReviewAccessDeniedException;
+import com.bookmakase.exception.review.ReviewAlreadyDeletedException;
+import com.bookmakase.exception.review.ReviewNotFoundException;
+import com.bookmakase.exception.user.UserNotFoundException;
 import com.bookmakase.repository.BookRepository;
 import com.bookmakase.repository.ReviewRepository;
 import com.bookmakase.repository.UserRepository;
@@ -70,6 +74,37 @@ public class ReviewService {
 			.build();
 	}
 
+	public ReviewUpdateResponse updateReview(Long reviewId, ReviewUpdateRequest request, String email) {
+		// 1. 리뷰가 있는지
+		Review review = reviewRepository.findById(reviewId)
+			.orElseThrow(() -> new ReviewNotFoundException("존재하지 않는 리뷰입니다."));
+
+		// 2. 삭제된 리뷰인지
+		if (review.isDeleted()) {
+			throw new ReviewAlreadyDeletedException("이미 삭제된 리뷰입니다.");
+		}
+
+		// 3. 사용자가 있는지
+		User user = userRepository.findByEmail(email)
+			.orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+
+		// 4. 리뷰의 소유자가 맞는지
+		if (!review.getUser().getUserId().equals(user.getUserId())) {
+			throw new ReviewAccessDeniedException("리뷰를 수정할 수 있는 권한이 없습니다.");
+		}
+
+		review.setRating(request.getRating());
+		review.setContent(request.getContent());
+
+		return ReviewUpdateResponse.builder()
+			.reviewId(review.getReviewId())
+			.userId(user.getUserId())
+			.updatedAt(LocalDateTime.now())
+			.rating(review.getRating())
+			.content(review.getContent())
+			.build();
+	}
+
 	public ReviewPatchResponse patchReview(Long reviewId, String email) {
 		// 1. 리뷰가 있는지
 		Review review = reviewRepository.findById(reviewId)
@@ -78,6 +113,15 @@ public class ReviewService {
 		// 2. 사용자가 있는지
 		User user = userRepository.findByEmail(email)
 			.orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+
+		// 3. 리뷰의 소유자가 맞는지
+		if (!review.getUser().getUserId().equals(user.getUserId())) {
+			if (review.isDeleted()) {
+				throw new ReviewAccessDeniedException("리뷰를 복구할 수 있는 권한이 없습니다.");
+			} else {
+				throw new ReviewAccessDeniedException("리뷰를 삭제할 수 있는 권한이 없습니다.");
+			}
+		}
 
 		log.info("현재 리뷰의 삭제값: {}", review.isDeleted());
 

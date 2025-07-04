@@ -1,4 +1,4 @@
-package com.bookmakase.exception;
+package com.bookmakase.exception.user;
 
 public class UserNotFoundException extends RuntimeException {
 	public UserNotFoundException(String message) {

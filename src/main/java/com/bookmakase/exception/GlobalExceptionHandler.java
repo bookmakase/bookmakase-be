@@ -9,6 +9,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.bookmakase.exception.auth.DuplicateEmailException;
+import com.bookmakase.exception.book.BookNotFoundException;
+import com.bookmakase.exception.review.ReviewAccessDeniedException;
+import com.bookmakase.exception.review.ReviewAlreadyDeletedException;
+import com.bookmakase.exception.review.ReviewNotFoundException;
+import com.bookmakase.exception.user.UserNotFoundException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 	/**
@@ -64,5 +71,21 @@ public class GlobalExceptionHandler {
 		body.put("status", 404);
 		body.put("message", ex.getMessage());
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+	}
+
+	@ExceptionHandler(ReviewAlreadyDeletedException.class)
+	public ResponseEntity<Map<String, Object>> handleReviewAlreadyDeletedException(ReviewAlreadyDeletedException ex) {
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("status", 400);
+		body.put("message", ex.getMessage());
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+	}
+
+	@ExceptionHandler(ReviewAccessDeniedException.class)
+	public ResponseEntity<Map<String, Object>> handleReviewAccessDeniedException(ReviewAccessDeniedException ex) {
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("status", 403);
+		body.put("message", ex.getMessage());
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
 	}
 }

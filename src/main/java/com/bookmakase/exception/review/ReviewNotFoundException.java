@@ -1,4 +1,4 @@
-package com.bookmakase.exception;
+package com.bookmakase.exception.review;
 
 public class ReviewNotFoundException extends RuntimeException {
 	public ReviewNotFoundException(String message) {
