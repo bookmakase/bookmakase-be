@@ -4,6 +4,7 @@ package com.bookmakase.controller;
 import com.bookmakase.domain.User;
 import com.bookmakase.dto.user.AddressUpdateRequest;
 import com.bookmakase.dto.user.AddressUpdateResponse;
+import com.bookmakase.dto.user.IntroUpdateRequest;
 import com.bookmakase.dto.user.OneUserResponse;
 import com.bookmakase.dto.user.PointUpdateRequest;
 import com.bookmakase.dto.user.PointUpdateResponse;
@@ -61,6 +62,18 @@ public class UserController {
         }
 
         AddressUpdateResponse updated = userService.updateAddress(current.getUserId(), request.getAddress());
+        return ResponseEntity.status(HttpStatus.OK).body(updated);
+    }
+
+    @PatchMapping("/intro")
+    public ResponseEntity<UserResponse> patchUserIntro(@RequestBody @Valid IntroUpdateRequest request) {
+        User current = authService.getCurrentUser();
+
+        if(current == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        UserResponse updated = userService.updateIntro(current.getUserId(), request.getIntro());
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 }

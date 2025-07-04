@@ -82,7 +82,5 @@ public class RefreshTokenService {
         }).orElse(0);
     }
 
-    public boolean deleteByUserId(Long userId) {
-        return userRepository.deleteByUserId(userId);
-    }
+
 }
