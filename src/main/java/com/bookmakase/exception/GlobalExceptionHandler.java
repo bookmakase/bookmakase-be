@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.bookmakase.exception.auth.DuplicateEmailException;
+import com.bookmakase.exception.auth.UnauthorizedException;
 import com.bookmakase.exception.book.BookNotFoundException;
 import com.bookmakase.exception.review.ReviewAccessDeniedException;
 import com.bookmakase.exception.review.ReviewAlreadyDeletedException;
@@ -32,7 +33,7 @@ public class GlobalExceptionHandler {
 			.body(body);
 	}
 
-	// 회원 파트
+	// 인증 파트
 	@ExceptionHandler(DuplicateEmailException.class)
 	public ResponseEntity<Map<String, Object>> handleDuplicateEmailException(DuplicateEmailException ex) {
 		Map<String, Object> body = new LinkedHashMap<>();
@@ -45,6 +46,15 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(body, HttpStatus.CONFLICT);
 	}
 
+	@ExceptionHandler(UnauthorizedException.class)
+	public ResponseEntity<Map<String, Object>> handleUnauthorizedException(UnauthorizedException ex) {
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("status", 401);
+		body.put("message", ex.getMessage());
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+	}
+
+	// 회원 파트
 	@ExceptionHandler(UserNotFoundException.class)
 	public ResponseEntity<Map<String, Object>> handleUserNotFoundException(UserNotFoundException ex) {
 		Map<String, Object> body = new LinkedHashMap<>();
