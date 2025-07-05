@@ -53,7 +53,6 @@ public class BookAdminService {
 			.orElseThrow(() -> new BookNotFoundException("존재하지 않는 도서입니다."));
 	}
 
-	@Transactional
 	public BookAdminDetailResponse updateBook(Long bookId, BookAdminUpdateRequest request) {
 		Book book = bookAdminRepository.findById(bookId)
 			.orElseThrow(() -> new BookNotFoundException("존재하지 않는 도서입니다."));
