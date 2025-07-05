@@ -1,6 +1,5 @@
 package com.bookmakase.service;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -61,20 +60,21 @@ public class BookAdminService {
 		book.setTitle(request.getTitle());
 		book.setContents(request.getContents());
 		book.setIsbn(request.getIsbn());
-		book.setPublishedAt(OffsetDateTime.from(request.getPublishedAt()));
-
 		book.setAuthors(request.getAuthors());
 		book.setTranslators(request.getTranslators());
 		book.setPublisher(request.getPublisher());
-
 		book.setPrice(request.getPrice());
 		book.setSalePrice(request.getSalePrice());
 		book.setCount(request.getCount());
-
 		book.setThumbnail(request.getThumbnail());
 		book.setStatus(request.getStatus());
 
+		if (request.getPublishedAt() != null) {
+			book.setPublishedAt(request.getPublishedAt());
+		} else {
+			book.setPublishedAt(null);
+		}
+
 		return BookAdminDetailResponse.from(book);
 	}
-
 }
