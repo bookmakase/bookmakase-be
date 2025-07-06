@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bookmakase.dto.book.BookDetailResponse;
 import com.bookmakase.dto.book.BookHomeResponse;
+import com.bookmakase.dto.book.BookHomeSectionResponse;
 import com.bookmakase.service.BookHomeService;
 
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,11 @@ public class BookHomeController {
 	@GetMapping("/{bookId}")
 	public ResponseEntity<BookDetailResponse> getById(@PathVariable Long bookId) {
 		return ResponseEntity.ok(bookHomeService.getBookById(bookId));
+	}
+
+	@GetMapping
+	public ResponseEntity<BookHomeSectionResponse> getHomeBooks() {
+		return ResponseEntity.ok(bookHomeService.getHomeBooks());
 	}
 
 	@GetMapping
