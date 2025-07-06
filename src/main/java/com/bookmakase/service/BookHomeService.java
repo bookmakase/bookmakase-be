@@ -1,9 +1,14 @@
 package com.bookmakase.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bookmakase.dto.book.BookDetailResponse;
+import com.bookmakase.dto.book.BookHomeResponse;
 import com.bookmakase.exception.book.BookNotFoundException;
 import com.bookmakase.repository.BookHomeRepository;
 
@@ -20,5 +25,13 @@ public class BookHomeService {
 		return bookHomeRepository.findById(bookId)
 			.map(BookDetailResponse::from)
 			.orElseThrow(() -> new BookNotFoundException("존재하지 않는 도서입니다."));
+	}
+
+	@Transactional(readOnly = true)
+	public List<BookHomeResponse> getLatestBooks(int limit) {
+		return bookHomeRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(0, limit))
+			.stream()
+			.map(BookHomeResponse::from)
+			.collect(Collectors.toList());
 	}
 }
