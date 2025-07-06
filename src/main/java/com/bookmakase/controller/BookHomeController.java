@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bookmakase.dto.book.BookDetailResponse;
 import com.bookmakase.dto.book.BookHomeResponse;
 import com.bookmakase.dto.book.BookHomeSectionResponse;
+import com.bookmakase.dto.book.BookSearchRequest;
 import com.bookmakase.service.BookHomeService;
 
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ public class BookHomeController {
 		return ResponseEntity.ok(bookHomeService.getBookById(bookId));
 	}
 
-	@GetMapping
+	@GetMapping("/home")
 	public ResponseEntity<BookHomeSectionResponse> getHomeBooks() {
 		return ResponseEntity.ok(bookHomeService.getHomeBooks());
 	}
@@ -41,6 +42,20 @@ public class BookHomeController {
 			return ResponseEntity.badRequest().build();
 		}
 		return ResponseEntity.ok(bookHomeService.getLatestBooks(limit));
+	}
+
+	@GetMapping("/search")
+	public ResponseEntity<List<BookHomeResponse>> searchBooks(
+		@RequestParam(required = false) String title,
+		@RequestParam(required = false) String author
+	) {
+		BookSearchRequest request = BookSearchRequest.builder()
+			.title(title)
+			.author(author)
+			.build();
+
+		List<BookHomeResponse> result = bookHomeService.searchBooks(request);
+		return ResponseEntity.ok(result);
 	}
 
 }
