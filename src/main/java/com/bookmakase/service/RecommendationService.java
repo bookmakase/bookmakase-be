@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import com.bookmakase.dto.admin.RecommendationPageResponse;
 import com.bookmakase.dto.admin.RecommendationResponse;
 import com.bookmakase.exception.book.BookNotFoundException;
 import com.bookmakase.exception.recommend.DuplicateRecommendationException;
+import com.bookmakase.exception.recommend.RecommendationNotFoundException;
 import com.bookmakase.exception.user.UserNotFoundException;
 import com.bookmakase.repository.BookAdminRepository;
 import com.bookmakase.repository.RecommendationRepository;
@@ -71,9 +73,18 @@ public class RecommendationService {
 	}
 
 	@Transactional
-	public void deleteRecommendation(Long recommendationId) {
+	public void deleteRecommendation(Long recommendationId, String email) {
 		Recommendation recommendation = recommendationRepository.findById(recommendationId)
-			.orElseThrow(() -> new IllegalArgumentException("추천이 존재하지 않습니다."));
+			.orElseThrow(() -> new RecommendationNotFoundException(recommendationId));
+
+		User user = userRepository.findByEmail(email)
+			.orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+
+		// ✅ 본인 추천이 아닌 경우 예외
+		if (!recommendation.getUser().getUserId().equals(user.getUserId())) {
+			throw new AccessDeniedException("자신이 추천한 도서만 삭제할 수 있습니다.");
+		}
+
 		recommendationRepository.delete(recommendation);
 	}
 

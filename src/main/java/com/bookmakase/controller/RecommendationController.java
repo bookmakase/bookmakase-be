@@ -45,9 +45,13 @@ public class RecommendationController {
 	}
 
 	@DeleteMapping("/recommendations/{recommendationId}")
-	public ResponseEntity<Void> deleteRecommendation(@PathVariable Long recommendationId) {
-		recommendationService.deleteRecommendation(recommendationId);
-		return ResponseEntity.noContent().build(); // 204
+	public ResponseEntity<Void> deleteRecommendation(
+		@PathVariable Long recommendationId,
+		@AuthenticationPrincipal UserDetails user
+	) {
+		String email = user.getUsername();
+		recommendationService.deleteRecommendation(recommendationId, email);
+		return ResponseEntity.noContent().build();
 	}
 
 }
