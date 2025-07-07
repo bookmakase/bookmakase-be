@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.bookmakase.exception.auth.DuplicateEmailException;
 import com.bookmakase.exception.auth.UnauthorizedException;
 import com.bookmakase.exception.book.BookNotFoundException;
+import com.bookmakase.exception.comment.CommentAccessDeniedException;
+import com.bookmakase.exception.comment.CommentNotFoundException;
+import com.bookmakase.exception.common.InvalidException;
 import com.bookmakase.exception.review.ReviewAccessDeniedException;
 import com.bookmakase.exception.review.ReviewAlreadyDeletedException;
 import com.bookmakase.exception.review.ReviewNotFoundException;
@@ -31,6 +34,14 @@ public class GlobalExceptionHandler {
 		return ResponseEntity
 			.status(HttpStatus.INTERNAL_SERVER_ERROR)
 			.body(body);
+	}
+
+	@ExceptionHandler(InvalidException.class)
+	public ResponseEntity<Map<String, Object>> handleInvalidException(InvalidException ex) {
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("status", 400);
+		body.put("message", ex.getMessage());
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
 	}
 
 	// 인증 파트
@@ -86,13 +97,30 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(ReviewAlreadyDeletedException.class)
 	public ResponseEntity<Map<String, Object>> handleReviewAlreadyDeletedException(ReviewAlreadyDeletedException ex) {
 		Map<String, Object> body = new LinkedHashMap<>();
-		body.put("status", 400);
+		body.put("status", 409);
 		body.put("message", ex.getMessage());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
 	}
 
 	@ExceptionHandler(ReviewAccessDeniedException.class)
 	public ResponseEntity<Map<String, Object>> handleReviewAccessDeniedException(ReviewAccessDeniedException ex) {
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("status", 403);
+		body.put("message", ex.getMessage());
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+	}
+
+	// 답글 파트
+	@ExceptionHandler(CommentNotFoundException.class)
+	public ResponseEntity<Map<String, Object>> handleCommentNotFoundException(CommentNotFoundException ex) {
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("status", 404);
+		body.put("message", ex.getMessage());
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+	}
+
+	@ExceptionHandler(CommentAccessDeniedException.class)
+	public ResponseEntity<Map<String, Object>> handleCommentAccessDeniedException(CommentAccessDeniedException ex) {
 		Map<String, Object> body = new LinkedHashMap<>();
 		body.put("status", 403);
 		body.put("message", ex.getMessage());
