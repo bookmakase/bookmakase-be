@@ -20,6 +20,7 @@ public class BookAdminResponse {
 	private OffsetDateTime createdAt;
 	private String status;
 	private Integer count;
+	private boolean isRecommended;
 
 	public static BookAdminResponse from(Book book) {
 		return BookAdminResponse.builder()
@@ -32,4 +33,18 @@ public class BookAdminResponse {
 			.createdAt(book.getCreatedAt())
 			.build();
 	}
+
+	public static BookAdminResponse from(Book book, boolean isRecommended) {
+		return BookAdminResponse.builder()
+			.bookId(book.getBookId())
+			.title(book.getTitle())
+			.authors(book.getAuthors())
+			.isbn(book.getIsbn())
+			.status(book.getStatus())
+			.count(book.getCount())
+			.createdAt(book.getCreatedAt())
+			.isRecommended(isRecommended)
+			.build();
+	}
+
 }

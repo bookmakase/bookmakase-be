@@ -77,4 +77,9 @@ public class RecommendationService {
 		recommendationRepository.delete(recommendation);
 	}
 
+	@Transactional(readOnly = true)
+	public boolean isBookRecommended(Long bookId) {
+		return recommendationRepository.existsByBookBookId(bookId);
+	}
+
 }

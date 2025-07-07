@@ -8,4 +8,7 @@ import com.bookmakase.domain.Recommendation;
 @Repository
 public interface RecommendationRepository extends JpaRepository<Recommendation, Long> {
 	boolean existsByUserEmailAndBookBookId(String email, Long bookId);
+
+	boolean existsByBookBookId(Long bookId);
+
 }
