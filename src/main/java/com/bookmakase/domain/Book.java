@@ -70,4 +70,8 @@ public class Book {
 
 	@OneToMany(mappedBy = "book")
 	private List<Review> reviews = new ArrayList<>();
+
+	// orderItem 도메인과 연결 추가
+	@OneToMany(mappedBy = "book")
+	private List<OrderItem> orderItems = new ArrayList<>();
 }
