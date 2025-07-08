@@ -38,6 +38,7 @@ public class SecurityConfig {
 			.authorizeHttpRequests((auth) -> auth
 				.requestMatchers(Whitelist.PATHS).permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/v1/books/**").permitAll()
 				.requestMatchers("/api/v1/auth/logout").authenticated()
 				.requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated())
