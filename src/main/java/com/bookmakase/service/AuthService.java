@@ -107,7 +107,7 @@ public class AuthService {
 				org.springframework.security.core.userdetails.User
 					.withUsername(user.getEmail())
 					.password(user.getPassword())
-					.authorities("ROLE_" + user.getRole().name())
+					.authorities(user.getRole().name())
 					.build()))
 			.orElseThrow(() -> new RuntimeException("리프레쉬 토큰이 없습니다."));
 
