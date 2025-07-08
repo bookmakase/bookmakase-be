@@ -15,14 +15,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter @Setter
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity
 @Table(name = "order_items")
 public class OrderItem {
-	@Id @Column(name = "order_item_id")
+	@Id
+	@Column(name = "order_item_id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long orderItemId;
 
@@ -42,5 +44,6 @@ public class OrderItem {
 	@Column(name = "order_quantity")
 	private Integer orderQuantity;
 
+	@Column(columnDefinition = "TEXT")
 	private String contents;
 }
