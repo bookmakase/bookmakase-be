@@ -30,7 +30,7 @@ public class BookHomeController {
 	}
 
 	@GetMapping("/home")
-	public ResponseEntity<BookHomeSectionResponse> getHomeBooks() {
+	public ResponseEntity<List<BookHomeSectionResponse>> getHomeBooks() {
 		return ResponseEntity.ok(bookHomeService.getHomeBooks());
 	}
 
