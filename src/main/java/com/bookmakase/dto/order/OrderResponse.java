@@ -55,7 +55,7 @@ public class OrderResponse {
 			.expectedArrivalDate(order.getExpectedArrivalDate())
 			.deliveryDate(order.getDeliveryDate())
 			.isRefunded(order.isRefunded())
-			.isReview(false)
+			// .isReview(false)
 			.totalPrice(order.getTotalPrice())
 			.totalQuantity(order.getTotalQuantity())
 			.orderItems(items)
