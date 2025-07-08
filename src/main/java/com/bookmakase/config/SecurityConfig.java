@@ -36,19 +36,11 @@ public class SecurityConfig {
 			.sessionManagement(session -> session
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests((auth) -> auth
-				.requestMatchers(
-					"/api/v1/auth/**",
-					"/swagger-ui/**",
-					"/v3/api-docs/**",
-					"/swagger-resources/**",
-					"/webjars/**",
-					"/swagger-ui.html",
-					"/api/v1/admin/**",
-					"/api/v1/books/**"
-				).permitAll()
+				.requestMatchers(Whitelist.PATHS).permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
-				.requestMatchers("/error").permitAll()
-
+				.requestMatchers("/api/v1/auth/logout").authenticated()
+				.requestMatchers("/admin/**").hasRole("ADMIN")
+				.requestMatchers("/mypage/**").authenticated()
 				.anyRequest().authenticated())
 			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
