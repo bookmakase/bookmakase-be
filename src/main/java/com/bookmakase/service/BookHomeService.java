@@ -16,6 +16,7 @@ import com.bookmakase.dto.book.BookHomeSectionResponse;
 import com.bookmakase.dto.book.BookSearchRequest;
 import com.bookmakase.exception.book.BookNotFoundException;
 import com.bookmakase.repository.BookHomeRepository;
+import com.bookmakase.repository.RecommendationRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class BookHomeService {
 	private final BookHomeRepository bookHomeRepository;
+	private final RecommendationRepository recommendationRepository;
 
 	@Transactional(readOnly = true)
 	public BookDetailResponse getBookById(Long bookId) {
@@ -33,9 +35,14 @@ public class BookHomeService {
 	}
 
 	@Transactional(readOnly = true)
-	public BookHomeSectionResponse getHomeBooks() {
+	public List<BookHomeSectionResponse> getHomeBooks() {
+		List<BookHomeResponse> recommended = getRecommendedBooks(6);
 		List<BookHomeResponse> latest = getLatestBooks(10);
-		return new BookHomeSectionResponse(latest);
+
+		return List.of(
+			BookHomeSectionResponse.of("recommended", "추천 도서", recommended),
+			BookHomeSectionResponse.of("latest", "최신 도서", latest)
+		);
 	}
 
 	@Transactional(readOnly = true)
@@ -43,6 +50,14 @@ public class BookHomeService {
 		return bookHomeRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(0, limit))
 			.stream()
 			.map(BookHomeResponse::from)
+			.collect(Collectors.toList());
+	}
+
+	@Transactional(readOnly = true)
+	public List<BookHomeResponse> getRecommendedBooks(int limit) {
+		return recommendationRepository.findAllByOrderByRecommendedAtDesc(PageRequest.of(0, limit))
+			.stream()
+			.map(recommendation -> BookHomeResponse.from(recommendation.getBook()))
 			.collect(Collectors.toList());
 	}
 
