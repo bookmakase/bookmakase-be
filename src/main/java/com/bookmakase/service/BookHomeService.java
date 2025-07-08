@@ -36,8 +36,8 @@ public class BookHomeService {
 
 	@Transactional(readOnly = true)
 	public List<BookHomeSectionResponse> getHomeBooks() {
-		List<BookHomeResponse> recommended = getRecommendedBooks(6);
-		List<BookHomeResponse> latest = getLatestBooks(10);
+		List<BookHomeResponse> recommended = getRecommendedBooks(18);
+		List<BookHomeResponse> latest = getLatestBooks(18);
 
 		return List.of(
 			BookHomeSectionResponse.of("recommended", "추천 도서", recommended),
