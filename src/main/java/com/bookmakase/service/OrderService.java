@@ -1,8 +1,13 @@
 package com.bookmakase.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +18,8 @@ import com.bookmakase.domain.User;
 import com.bookmakase.dto.order.OrderCreateRequest;
 import com.bookmakase.dto.order.OrderCreateResponse;
 import com.bookmakase.dto.order.OrderItemCreateResponse;
+import com.bookmakase.dto.order.OrderPageResponse;
+import com.bookmakase.dto.order.OrderResponse;
 import com.bookmakase.enums.OrderStatusType;
 import com.bookmakase.enums.PaymentMethodType;
 import com.bookmakase.exception.book.BookNotFoundException;
@@ -31,6 +38,21 @@ public class OrderService {
 	private final OrderRepository orderRepository;
 	private final UserRepository userRepository;
 	private final BookHomeRepository bookHomeRepository;
+
+	public OrderPageResponse getAllOrders(Long userId, int page, int size) {
+
+		/* ① PageRequest 준비 (0-based로 보정) */
+		Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "orderDate"));
+
+		/* ② 주문 페이지 조회 */
+		Page<Order> result = orderRepository.findByUser_UserId(userId, pageable);
+
+		List<OrderResponse> orders = result.getContent().stream()
+			.map((order) -> OrderResponse.from(order))
+			.toList();
+
+		return OrderPageResponse.from(orders, result);
+	}
 
 	public OrderCreateResponse createOrder(OrderCreateRequest orderCreateRequest, String email) {
 		// 결제 방식에 대한 enum 값 추출
