@@ -39,8 +39,7 @@ public class SecurityConfig {
 				.requestMatchers(Whitelist.PATHS).permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
 				.requestMatchers("/api/v1/auth/logout").authenticated()
-				.requestMatchers("/admin/**").hasRole("ADMIN")
-				.requestMatchers("/mypage/**").authenticated()
+				.requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated())
 			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

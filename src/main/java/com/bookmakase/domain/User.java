@@ -64,7 +64,7 @@ public class User {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false, length = 20)
-	private Role role = Role.USER;
+	private Role role = Role.ROLE_USER;
 
 	private String address;
 
@@ -74,7 +74,7 @@ public class User {
 	@Column(columnDefinition = "TEXT")
 	private String intro;
 
-	public enum Role {USER, ADMIN}
+	public enum Role {ROLE_USER, ROLE_ADMIN}
 
 	@OneToMany(mappedBy = "user")
 	private List<Review> reviews = new ArrayList<>();

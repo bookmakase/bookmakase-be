@@ -60,6 +60,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			username = jwtUtil.getUsernameFromToken(jwt);
 		} catch (ExpiredJwtException e) {
 
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
 		}
 
 		// 유효한 사용자면 SecurityContextHolder에 인증 정보를 수동으로 넣어줌
