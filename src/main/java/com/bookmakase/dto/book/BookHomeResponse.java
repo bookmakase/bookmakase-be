@@ -13,12 +13,14 @@ import lombok.Setter;
 @Builder
 public class BookHomeResponse {
 
+	private Long bookId;
 	private String title;
 	private List<String> authors;
 	private String thumbnail;
 
 	public static BookHomeResponse from(Book book) {
 		return BookHomeResponse.builder()
+			.bookId(book.getBookId())
 			.title(book.getTitle())
 			.authors(book.getAuthors() != null ? book.getAuthors() : List.of())
 			.thumbnail(book.getThumbnail())

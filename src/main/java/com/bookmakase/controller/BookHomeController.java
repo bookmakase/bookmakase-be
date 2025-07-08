@@ -34,15 +34,15 @@ public class BookHomeController {
 		return ResponseEntity.ok(bookHomeService.getHomeBooks());
 	}
 
-	@GetMapping
-	public ResponseEntity<List<BookHomeResponse>> getLatestBooks(
-		@RequestParam String type,
-		@RequestParam(defaultValue = "10") int limit) {
-		if (!"latest".equals(type)) {
-			return ResponseEntity.badRequest().build();
-		}
-		return ResponseEntity.ok(bookHomeService.getLatestBooks(limit));
-	}
+	// @GetMapping
+	// public ResponseEntity<List<BookHomeResponse>> getLatestBooks(
+	// 	@RequestParam String type,
+	// 	@RequestParam(defaultValue = "10") int limit) {
+	// 	if (!"latest".equals(type)) {
+	// 		return ResponseEntity.badRequest().build();
+	// 	}
+	// 	return ResponseEntity.ok(bookHomeService.getLatestBooks(limit));
+	// }
 
 	@GetMapping("/search")
 	public ResponseEntity<List<BookHomeResponse>> searchBooks(
