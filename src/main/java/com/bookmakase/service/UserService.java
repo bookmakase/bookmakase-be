@@ -2,7 +2,9 @@ package com.bookmakase.service;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,7 +13,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.bookmakase.domain.User;
 import com.bookmakase.dto.user.AddressUpdateResponse;
 import com.bookmakase.dto.user.InformationUpdateRequest;
@@ -30,6 +35,10 @@ public class UserService implements UserDetailsService {
 	private final UserRepository userRepository;
 
 	private final PasswordEncoder passwordEncoder;
+
+	private final AmazonS3 amazonS3;
+	@Value("${cloud.aws.s3.bucket}")
+	private String bucket;
 
 	/* ① UserDetailsService 필수 메서드 */
 	@Override
@@ -146,5 +155,35 @@ public class UserService implements UserDetailsService {
 
 		userRepository.save(user);
 		return UserResponse.from(user);
+	}
+
+	@Transactional
+	public UserResponse updateProfileImage(Long userId, MultipartFile file) {
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다." + userId));
+
+		try {
+			// 1. 고유한 파일명 생성
+			String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+
+			// 2. 메타데이터 설정
+			ObjectMetadata metadata = new ObjectMetadata();
+			metadata.setContentLength(file.getSize());
+			metadata.setContentType(file.getContentType());
+
+			// 3. S3 업로드
+			amazonS3.putObject(bucket, fileName, file.getInputStream(), metadata);
+
+			// 4. S3 URL 추출
+			String fileUrl = amazonS3.getUrl(bucket, fileName).toString();
+
+			// 5. 추출한 이미지 경로를 유저 정보에 저장
+			user.setImageUrl(fileUrl);
+			userRepository.save(user);
+
+			return UserResponse.from(user);
+		} catch (Exception e) {
+			throw new RuntimeException("S3 업로드 중 오류 발생 : " + e.getMessage());
+		}
 	}
 }
