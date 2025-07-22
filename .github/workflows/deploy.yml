@@ -1,0 +1,97 @@
+name: EC2 배포
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Github Repository 파일 불러오기
+        uses: actions/checkout@v4
+
+      - name: JDK 17버전 설치
+        uses: actions/setup-java@v4
+        with:
+          distribution: corretto
+          java-version: 17
+
+      - name: Gradle 캐싱
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: application.yml 파일 만들기
+        run: echo "${{ secrets.APPLICATION_PROPERTIES }}" > ./src/main/resources/application.yml
+
+      - name: Gradle 실행 권한 부여
+        run: chmod +x ./gradlew
+
+      - name: 테스트 및 빌드하기
+        run: ./gradlew clean build
+
+      - name: 빌드된 Jar 파일 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: build/libs/*.jar
+
+  image:
+    needs: build
+    runs-on: ubuntu-latest
+    outputs:
+      ecr_registry: ${{ steps.login-ecr.outputs.registry }}
+    steps:
+      - name: Github Repository 파일 불러오기
+        uses: actions/checkout@v4
+
+      - name: 빌드된 Jar 파일 다운로드
+        uses: actions/download-artifact@v4
+        with:
+          name: app-jar
+          path: .
+
+      - name: AWS Resource에 접근할 수 있게 AWS credentials 설정
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: ECR에 로그인하기
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Docker 이미지 생성
+        run: docker build -t bookmakase-api-server .
+
+      - name: Docker 이미지에 Tag 붙이기
+        run: docker tag bookmakase-api-server ${{ steps.login-ecr.outputs.registry }}/bookmakase-api-server:latest
+
+      - name: ECR에 Docker 이미지 Push하기
+        run: docker push ${{ steps.login-ecr.outputs.registry }}/bookmakase-api-server:latest
+
+  deploy:
+    needs: image
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH로 EC2에 접속하기
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            ECR_REGISTRY="${{ needs.image.outputs.ecr_registry }}"
+            docker stop bookmakase-api-server || true
+            docker rm bookmakase-api-server || true
+            docker pull ${ECR_REGISTRY}/bookmakase-api-server:latest
+            docker run -d --name bookmakase-api-server -p 8080:8080 ${ECR_REGISTRY}/bookmakase-api-server:latest
