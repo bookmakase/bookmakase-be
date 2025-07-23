@@ -68,9 +68,4 @@ public class ReviewController {
 		String email = user.getUsername();
 		return ResponseEntity.ok(reviewService.patchReview(reviewId, email));
 	}
-
-	@PostMapping("/reviews/test3")
-	public String test() {
-		return "test";
-	}
 }
