@@ -78,20 +78,20 @@ jobs:
       - name: ECR에 Docker 이미지 Push하기
         run: docker push ${{ steps.login-ecr.outputs.registry }}/bookmakase-be:latest
 
-#  deploy:
-#    needs: image
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: SSH로 EC2에 접속하기
-#        uses: appleboy/ssh-action@v1.0.3
-#        with:
-#          host: ${{ secrets.EC2_HOST }}
-#          username: ${{ secrets.EC2_USERNAME }}
-#          key: ${{ secrets.EC2_PRIVATE_KEY }}
-#          script_stop: true
-#          script: |
-#            ECR_REGISTRY="${{ needs.image.outputs.ecr_registry }}"
-#            docker stop bookmakase-api-server || true
-#            docker rm bookmakase-api-server || true
-#            docker pull ${ECR_REGISTRY}/bookmakase-api-server:latest
-#            docker run -d --name bookmakase-api-server -p 8080:8080 ${ECR_REGISTRY}/bookmakase-api-server:latest
+  deploy:
+    needs: image
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH로 EC2에 접속하기
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            ECR_REGISTRY="${{ needs.image.outputs.ecr_registry }}"
+            docker stop bookmakase-api-server || true
+            docker rm bookmakase-api-server || true
+            docker pull ${ECR_REGISTRY}/bookmakase-api-server:latest
+            docker run -d --name bookmakase-api-server -p 8080:8080 ${ECR_REGISTRY}/bookmakase-api-server:latest

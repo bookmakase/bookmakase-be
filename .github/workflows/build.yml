@@ -46,8 +46,6 @@ jobs:
   image:
     needs: build
     runs-on: ubuntu-latest
-    outputs:
-      ecr_registry: ${{ steps.login-ecr.outputs.registry }}
     steps:
       - name: Github Repository 파일 불러오기
         uses: actions/checkout@v4
@@ -77,3 +75,20 @@ jobs:
 
       - name: ECR에 Docker 이미지 Push하기
         run: docker push ${{ steps.login-ecr.outputs.registry }}/bookmakase-be:latest
+
+  deploy:
+    needs: image
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH로 EC2에 접속하기
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            cd bookmakase-be-server/
+            docker-compose down
+            docker-compose pull
+            docker-compose up --build -d
