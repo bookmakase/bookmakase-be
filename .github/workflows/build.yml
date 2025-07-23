@@ -91,4 +91,4 @@ jobs:
             cd bookmakase-be-server/
             docker compose down
             docker compose pull
-            docker compose up --build -d
+            docker compose up -d
